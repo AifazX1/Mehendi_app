@@ -3,6 +3,26 @@ from datetime import datetime
 from database import get_db_connection
 import time
 
+import streamlit as st
+from datetime import datetime
+from database import get_db_connection
+import time
+
+def get_artist_location(artist_id):
+    """Fetch artist location (address) from the database"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT address FROM artists WHERE id = ?", (artist_id,))
+        result = cursor.fetchone()
+        conn.close()
+        if result and result[0]:
+            return result[0]
+        return None
+    except Exception as e:
+        st.error(f"Error fetching artist location: {e}")
+        return None
+
 def chat_interface():
     st.subheader("💬 Chat with Artists")
 
@@ -44,6 +64,16 @@ def chat_interface():
 
             # Display chat messages
             st.write(f"**Chatting with: {selected_artist['name']}**")
+
+            # Display artist location on map if available
+            artist_location = get_artist_location(selected_artist['id'])
+            if artist_location:
+                st.write("**Artist Location:**")
+                # Use OpenStreetMap embed with query for the address
+                map_url = f"https://www.openstreetmap.org/search?query={artist_location.replace(' ', '%20')}"
+                st.markdown(f"[View on Map]({map_url})", unsafe_allow_html=True)
+            else:
+                st.info("Artist location not available.")
 
             if chat_history:
                 for message in chat_history:
