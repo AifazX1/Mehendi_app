@@ -70,6 +70,8 @@ def init_database():
         columns = [row[1] for row in cursor.fetchall()]
         if 'email' not in columns:
             cursor.execute("ALTER TABLE artists ADD COLUMN email TEXT")
+        if 'languages' not in columns:
+            cursor.execute("ALTER TABLE artists ADD COLUMN languages TEXT")
 
         # Artist availability table
         cursor.execute('''
