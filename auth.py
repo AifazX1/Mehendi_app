@@ -52,10 +52,23 @@ def authenticate_user(username, password, role):
 
         cursor.execute("SELECT password FROM users WHERE username = ? AND role = ?", (username, role))
         result = cursor.fetchone()
-        conn.close()
 
         if result and verify_password(password, result[0]):
+            # If artist, update status to 'approved' on successful login
+            if role == 'artist':
+                try:
+                    cursor.execute("""
+                        UPDATE artists SET status = 'approved'
+                        WHERE user_id = (SELECT id FROM users WHERE username = ?)
+                    """, (username,))
+                    conn.commit()
+                except Exception as e:
+                    st.error(f"Error updating artist status on login: {e}")
+
+            conn.close()
             return True
+
+        conn.close()
         return False
     except Exception as e:
         st.error(f"Authentication error: {e}")
