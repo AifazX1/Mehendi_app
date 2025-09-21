@@ -192,9 +192,6 @@ def user_dashboard():
                                 st.info(f"Booking system for {artist['name']} would be implemented here")
             else:
                 st.info("No artists found in your area. Try expanding your search or check back later.")
-
-                # Show empty map
-                st.subheader("📍 Search Area")
                 create_empty_map(location)
 
     with tab2:
@@ -210,24 +207,16 @@ def user_dashboard():
 def create_artist_map(artists, location):
     """Create a folium map with artist locations"""
     try:
-        # Geocode the search location to get coordinates
         center_coords = geocode_location(location)
-
-        # Use default coordinates if geocoding fails
         if not center_coords:
             center_coords = get_default_coordinates()
             st.warning(f"Could not find coordinates for '{location}'. Using default location.")
 
-        # Create base map centered on the search location
         m = folium.Map(location=center_coords, zoom_start=12)
 
-        # Add markers for each artist
         for artist in artists:
-            # Mock coordinates for now - would use actual address geocoding
-            lat = center_coords[0] + (artists.index(artist) * 0.01)  # Slight offset for demo
+            lat = center_coords[0] + (artists.index(artist) * 0.01)
             lng = center_coords[1] + (artists.index(artist) * 0.01)
-
-            # Create popup content
             popup_content = f"""
             <b>{artist['name']}</b><br>
             ⭐ {artist.get('avg_rating', 0):.1f}/5.0<br>
@@ -235,15 +224,8 @@ def create_artist_map(artists, location):
             📍 {artist.get('address', 'Address not available')}<br>
             {'🟢 Online' if artist.get('is_online', False) else '🔴 Offline'}
             """
+            folium.Marker([lat, lng], popup=popup_content, tooltip=artist['name']).add_to(m)
 
-            # Add marker
-            folium.Marker(
-                [lat, lng],
-                popup=popup_content,
-                tooltip=artist['name']
-            ).add_to(m)
-
-        # Display map
         st_folium(m, width=700, height=400)
 
     except Exception as e:
@@ -253,35 +235,19 @@ def create_artist_map(artists, location):
 def create_empty_map(location):
     """Create an empty map showing the search area"""
     try:
-        # Geocode the search location to get coordinates
         center_coords = geocode_location(location)
-
-        # Use default coordinates if geocoding fails
         if not center_coords:
             center_coords = get_default_coordinates()
             st.warning(f"Could not find coordinates for '{location}'. Using default location.")
 
-        # Create base map centered on the search location
         m = folium.Map(location=center_coords, zoom_start=12)
-
-        # Add a marker for the search location
-        folium.Marker(
-            center_coords,
-            popup=f"Search area: {location}",
-            tooltip="Your location",
-            icon=folium.Icon(color='blue', icon='info-sign')
-        ).add_to(m)
-
-        # Display map
+        folium.Marker(center_coords, popup=f"Search area: {location}", tooltip="Your location",
+                      icon=folium.Icon(color='blue', icon='info-sign')).add_to(m)
         st_folium(m, width=700, height=400)
-
     except Exception as e:
         st.error(f"Error creating map: {e}")
         st.info("Map functionality would be displayed here")
 
-def artist_dashboard():
-    """Main artist dashboard - redirect to comprehensive artist dashboard"""
-    artist_main_dashboard()
-
 if __name__ == "__main__":
     main()
+
