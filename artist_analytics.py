@@ -229,7 +229,7 @@ def display_service_analytics(username):
     # Service performance
     service_data = get_service_performance(username)
 
-    if service_data:
+    if not service_data.empty:
         # Service performance table
         st.dataframe(service_data, use_container_width=True)
 
