@@ -98,19 +98,19 @@ def display_all_conversations(username):
                     st.write(f"**Status:** {'Archived' if conv['archived'] else 'Active'}")
 
                 with col2:
-                    if st.button("View Chat", key=f"view_{conv['id']}"):
+                    if st.button("View Chat", key=f"view_{conv['other_user_id']}"):
                         st.info("Chat viewer would open here")
 
-                    if st.button("Reply", key=f"reply_{conv['id']}"):
+                    if st.button("Reply", key=f"reply_{conv['other_user_id']}"):
                         st.info("Quick reply interface would open here")
 
                 with col3:
                     if not conv['archived']:
-                        if st.button("Archive", key=f"archive_conv_{conv['id']}"):
+                        if st.button("Archive", key=f"archive_conv_{conv['other_user_id']}"):
                             archive_conversation(username, conv['customer_id'])
                             st.success("Conversation archived")
 
-                    if st.button("Flag", key=f"flag_{conv['id']}"):
+                    if st.button("Flag", key=f"flag_{conv['other_user_id']}"):
                         flag_conversation(username, conv['customer_id'])
                         st.warning("Conversation flagged for review")
     else:
