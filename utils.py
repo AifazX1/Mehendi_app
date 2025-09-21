@@ -163,8 +163,13 @@ def export_data(data, format_type="csv"):
     """Export data to different formats"""
     if format_type == "csv":
         import pandas as pd
-        df = pd.DataFrame(data)
-        return df.to_csv(index=False)
+        try:
+            df = pd.DataFrame(data)
+            return df.to_csv(index=False)
+        except ValueError as ve:
+            import streamlit as st
+            st.error(f"ValueError in export_data: {ve}")
+            return None
     elif format_type == "json":
         import json
         return json.dumps(data, indent=2)
