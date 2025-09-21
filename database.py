@@ -49,6 +49,7 @@ def init_database():
                 user_id INTEGER REFERENCES users(id),
                 name TEXT NOT NULL,
                 address TEXT,
+                email TEXT,
                 phone TEXT,
                 bio TEXT,
                 experience_years INTEGER,
@@ -63,6 +64,12 @@ def init_database():
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        # Check if 'email' column exists in artists table, add if missing
+        cursor.execute("PRAGMA table_info(artists)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'email' not in columns:
+            cursor.execute("ALTER TABLE artists ADD COLUMN email TEXT")
 
         # Artist availability table
         cursor.execute('''
