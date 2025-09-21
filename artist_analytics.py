@@ -211,8 +211,14 @@ def display_customer_analytics(username):
     clv_data = get_customer_lifetime_value(username)
 
     if clv_data:
-        fig = px.bar(clv_data, x='segment', y='clv', title='Customer Lifetime Value by Segment')
-        st.plotly_chart(fig, use_container_width=True)
+        try:
+            if 'segment' in clv_data.columns and 'clv' in clv_data.columns:
+                fig = px.bar(clv_data, x='segment', y='clv', title='Customer Lifetime Value by Segment')
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.error("Customer lifetime value data is missing required columns.")
+        except ValueError as ve:
+            st.error(f"ValueError in customer lifetime value chart: {ve}")
     else:
         st.info("No customer lifetime value data available")
 
