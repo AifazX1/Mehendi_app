@@ -222,7 +222,7 @@ def get_active_chats(username):
               AND u.role = 'user'
             GROUP BY other_user_id, u.username, u.role
             ORDER BY last_message_time DESC
-        """, (username, username, username, username, username, username, username, username))
+        """, (username, username, username, username, username, username, username, username, username))
 
         chats = cursor.fetchall()
         conn.close()
@@ -263,7 +263,7 @@ def get_all_conversations(username, status_filter="All", date_filter="All Time",
               AND u.role = 'user'
         """
 
-        params = [username] * 8
+        params = [username] * 9
 
         # Apply filters
         if status_filter != "All":
