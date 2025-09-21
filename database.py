@@ -285,6 +285,60 @@ def get_user_role(username):
         st.error(f"Error getting user role: {e}")
         return None
 
+def get_user_profile(username):
+    """Get user profile from database"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT u.*, a.*
+            FROM users u
+            LEFT JOIN artists a ON u.id = a.user_id
+            WHERE u.username = ?
+        """, (username,))
+
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            return dict(result)
+        else:
+            return None
+    except Exception as e:
+        st.error(f"Error getting user profile: {e}")
+        return None
+
+def update_artist_profile(username, profile_data):
+    """Update artist profile in database"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Get user id
+        cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+        user_result = cursor.fetchone()
+
+        if not user_result:
+            return False
+
+        user_id = user_result[0]
+
+        # Update artists table with profile_data dictionary keys and values
+        set_clause = ", ".join([f"{key} = ?" for key in profile_data.keys()])
+        values = list(profile_data.values())
+        values.append(user_id)
+
+        query = f"UPDATE artists SET {set_clause}, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?"
+        cursor.execute(query, values)
+
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        st.error(f"Error updating artist profile: {e}")
+        return False
+
 def geocode_address(address):
     """Convert address to coordinates using geocoding"""
     try:
