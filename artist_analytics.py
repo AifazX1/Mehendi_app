@@ -1,9 +1,68 @@
 import streamlit as st
 from datetime import datetime, date, timedelta
-from database import get_db_connection
+from database import get_db_connection, get_user_bookings, get_user_profile
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+
+def get_kpi_data(username):
+    """Fetch and calculate KPI data for the artist"""
+    try:
+        bookings = get_user_bookings(username)
+        profile = get_user_profile(username)
+
+        total_bookings = len(bookings)
+        monthly_bookings = 0
+        total_revenue = 0.0
+        monthly_revenue = 0.0
+        completed_bookings = 0
+
+        now = datetime.now()
+        start_of_month = datetime(now.year, now.month, 1)
+
+        for booking in bookings:
+            # Parse appointment_date string to datetime.date
+            appt_date = datetime.strptime(booking['appointment_date'], '%Y-%m-%d').date()
+            amount = booking.get('amount') or 0.0
+            status = booking.get('status') or ''
+
+            total_revenue += amount
+            if appt_date >= start_of_month.date():
+                monthly_revenue += amount
+                monthly_bookings += 1
+
+            if status == 'completed':
+                completed_bookings += 1
+
+        avg_rating = profile.get('rating', 0.0) if profile else 0.0
+
+        # For rating trend and completion trend, placeholders 0.0 for now
+        rating_trend = 0.0
+        completion_rate = (completed_bookings / total_bookings * 100) if total_bookings > 0 else 0.0
+        completion_trend = 0.0
+
+        return {
+            'total_bookings': total_bookings,
+            'monthly_bookings': monthly_bookings,
+            'total_revenue': total_revenue,
+            'monthly_revenue': monthly_revenue,
+            'avg_rating': avg_rating,
+            'rating_trend': rating_trend,
+            'completion_rate': completion_rate,
+            'completion_trend': completion_trend
+        }
+    except Exception as e:
+        st.error(f"Error fetching KPI data: {e}")
+        return {
+            'total_bookings': 0,
+            'monthly_bookings': 0,
+            'total_revenue': 0.0,
+            'monthly_revenue': 0.0,
+            'avg_rating': 0.0,
+            'rating_trend': 0.0,
+            'completion_rate': 0.0,
+            'completion_trend': 0.0
+        }
 
 def artist_analytics_dashboard(username):
     """Comprehensive analytics dashboard for artists"""
