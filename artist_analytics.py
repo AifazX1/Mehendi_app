@@ -210,7 +210,7 @@ def display_customer_analytics(username):
 
     clv_data = get_customer_lifetime_value(username)
 
-    if clv_data:
+    if clv_data is not None and not clv_data.empty:
         try:
             if 'segment' in clv_data.columns and 'clv' in clv_data.columns:
                 fig = px.bar(clv_data, x='segment', y='clv', title='Customer Lifetime Value by Segment')
